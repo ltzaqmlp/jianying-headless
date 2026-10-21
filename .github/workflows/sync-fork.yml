@@ -1,0 +1,30 @@
+name: Sync Fork Upstream
+
+      on:
+        schedule:
+          # 每天北京时间早上 08:00 (UTC 00:00) 自动同步
+          - cron: '0 0 * * *'
+        # 支持在 GitHub 网页上手动点击运行
+        workflow_dispatch:
+
+      concurrency:
+        group: ${{ github.workflow }}-${{ github.ref }}
+        cancel-in-progress: true
+
+      jobs:
+        sync:
+          name: Sync with upstream (mcncarl/jianying-headless)
+          runs-on: ubuntu-latest
+          if: github.repository == 'ltzaqmlp/jianying-headless'
+
+          permissions:
+            contents: write
+            workflows: write
+
+          steps:
+            - name: Sync fork via GitHub CLI
+              run: |
+                gh repo sync "${{ github.repository }}" -b main --source
+    mcncarl/jianying-headless
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
